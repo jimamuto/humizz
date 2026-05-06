@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "humizz"
+version = "0.1.0"
+description = "Local-first lightweight text humanizer"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.optional-dependencies]
+models = [
+  "torch",
+  "transformers",
+]
+
+[project.scripts]
+humizz = "humizz.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
