@@ -29,7 +29,7 @@ class RewriteEngineTests(unittest.TestCase):
         prompt = build_prompt("Rewrite naturally.", "Keep this meaning.")
 
         self.assertIn("Rewrite naturally.", prompt)
-        self.assertIn("Text: Keep this meaning.", prompt)
+        self.assertIn("Original text:\nKeep this meaning.", prompt)
 
 
 if __name__ == "__main__":

@@ -53,6 +53,20 @@ python -m unittest discover -s tests
 
 Tests use the fake backend and do not download models.
 
+## Evaluate
+
+Run all modes against the sample essay with the fake backend:
+
+```powershell
+humizz-eval samples/ai_like_essay.txt --output outputs/eval-fake.json
+```
+
+Run all modes with a local Transformers model:
+
+```powershell
+humizz-eval samples/ai_like_essay.txt --backend transformers --model Qwen/Qwen2.5-0.5B-Instruct --output outputs/eval-qwen.json
+```
+
 ## Non-goals
 
 - Training a foundation model from scratch

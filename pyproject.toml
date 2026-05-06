@@ -18,6 +18,7 @@ models = [
 
 [project.scripts]
 humizz = "humizz.cli:main"
+humizz-eval = "humizz.eval:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

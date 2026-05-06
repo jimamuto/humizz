@@ -24,7 +24,7 @@ class ModelAdapter(Protocol):
 
 class FakeAdapter:
     def generate(self, request: GenerationRequest) -> GenerationResult:
-        source = request.prompt.split("Text:", 1)[-1].split("Rewrite:", 1)[0].strip()
+        source = request.prompt.split("Original text:", 1)[-1].split("Rewritten text:", 1)[0].strip()
         return GenerationResult(
             text=f"Humanized: {source}",
             metadata={"adapter": "fake"},
@@ -57,5 +57,24 @@ class TransformersAdapter:
             temperature=request.temperature,
             return_full_text=False,
         )
-        text = output[0]["generated_text"].strip()
+        text = clean_generated_text(output[0]["generated_text"])
         return GenerationResult(text=text, metadata={"adapter": "transformers", "model_id": self.model_id})
+
+
+def clean_generated_text(text: str) -> str:
+    cleaned = text.strip()
+    for marker in (
+        "\n\nThis sentence",
+        "\n\nThis rewrite",
+        "\n\nThis method",
+        "\n\nThe benefits",
+        "\n\nIn this rewrite",
+        "\n\nPlease note",
+        "\n\nExplanation:",
+        "\nExplanation:",
+        "\n\nNote:",
+        "\nNote:",
+    ):
+        if marker in cleaned:
+            cleaned = cleaned.split(marker, 1)[0].strip()
+    return cleaned

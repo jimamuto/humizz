@@ -59,8 +59,13 @@ class RewriteEngine:
 
 def build_prompt(instruction: str, text: str) -> str:
     return (
-        f"{instruction}\n"
-        "Do not add facts. Do not explain the rewrite.\n\n"
-        f"Text: {text.strip()}\n\n"
-        "Rewrite:"
+        "You are Humizz, a rewrite tool.\n"
+        f"Task: {instruction}\n"
+        "Rules:\n"
+        "- Return only the rewritten text.\n"
+        "- Do not explain your changes.\n"
+        "- Do not add facts.\n"
+        "- Keep the original meaning.\n\n"
+        f"Original text:\n{text.strip()}\n\n"
+        "Rewritten text:"
     )
