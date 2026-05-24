@@ -70,12 +70,46 @@ humizz "It is important to note that this solution provides significant utility.
 
 Expected behavior: one concise rewritten sentence with no explanations, labels, markdown, translations, or emoji.
 
+## Feedback logging
+
+Log rewrites for future dataset building and fine-tuning:
+
+```powershell
+humizz "This solution provides significant utility." --log-feedback --accepted no --detector-score 0.98 --preferred-rewrite "This helps."
+```
+
+By default, feedback is appended to `data/feedback.jsonl`. Each JSONL row includes the input, output, quality warnings, model metadata, optional detector score, accepted/rejected flag, and preferred rewrite.
+
+Build fine-tuning-ready JSONL splits from logged feedback:
+
+```powershell
+python scripts/build_dataset.py --input data/feedback.jsonl --output-dir data/datasets/latest
+```
+
+Rejected rows are skipped unless they include `preferred_rewrite`. Output files use instruction-tuning rows with `instruction`, `input`, and `output` fields.
+
+Extract supported public datasets into the same pair format:
+
+```powershell
+python -m pip install -e .[mlops]
+python scripts/extract_public_datasets.py --preset human-ai-generated --limit 500 --output data/public/human-ai-generated.jsonl
+python scripts/extract_public_datasets.py --preset hap-e --limit 500 --output data/public/hap-e.jsonl
+```
+
+Supported presets are `human-ai-generated` (`dmitva/human_ai_generated_text`) and `hap-e` (`browndw/human-ai-parallel-corpus`). Review each dataset license and attribution requirements before redistribution or commercial use.
+
 ## Evaluate
 
 Run all modes with Modal remote functions:
 
 ```powershell
 humizz-eval samples/ai_like_essay.txt --backend modal --model Qwen/Qwen2.5-1.5B-Instruct --output outputs/eval-modal.json
+```
+
+Evaluate a dataset split:
+
+```powershell
+python scripts/evaluate_model.py --dataset data/datasets/latest/test.jsonl --backend modal --output outputs/model-eval.json
 ```
 
 ## Modal backend notes
@@ -89,6 +123,16 @@ Current generation defaults are tuned for concise rewrites:
 - `temperature`: `0.2`
 
 The engine prompt and output cleanup are intentionally strict to preserve meaning and avoid extra assistant chatter. The default prompt also discourages formal AI-sounding transitions and asks for shorter, everyday sentences.
+
+## Fine-tuning prep
+
+After enough reviewed pairs exist, launch LoRA training on Modal using the generated dataset location mounted in the training volume:
+
+```powershell
+python scripts/train_lora_modal.py --dataset-dir /runs/datasets/latest --model Qwen/Qwen2.5-1.5B-Instruct --output-name qwen2.5-1.5b-humizz-lora --max-steps 200
+```
+
+Treat this as an experiment until evaluation shows lower warning scores, acceptable detector scores, and manually reviewed meaning preservation.
 
 ## Non-goals
 

@@ -120,6 +120,18 @@ Also compare:
 - manually reviewed meaning preservation
 - sample outputs across essays, email, technical, marketing, and casual text
 
+## Current implementation status
+
+Implemented local MLOps scaffolding:
+
+- Feedback logging through `humizz --log-feedback`, writing `data/feedback.jsonl` rows with input, output, quality warnings, metadata, accepted/rejected status, detector score, and preferred rewrite.
+- Dataset building through `scripts/build_dataset.py`, producing train/validation/test JSONL splits with `instruction`, `input`, and `output` fields.
+- Public dataset extraction through `scripts/extract_public_datasets.py` for:
+  - `human-ai-generated` (`dmitva/human_ai_generated_text`)
+  - `hap-e` (`browndw/human-ai-parallel-corpus`)
+- Dataset evaluation through `scripts/evaluate_model.py`.
+- Modal LoRA training prep through `scripts/train_lora_modal.py`.
+
 ## Recommended next step
 
-Build feedback logging and dataset preparation first. Fine-tune only after enough high-quality pairs exist and evaluation gates are ready.
+The plan is ready for local pipeline testing with small data samples. Fine-tune only after enough high-quality reviewed pairs exist, public dataset licenses are accepted, and evaluation gates pass.

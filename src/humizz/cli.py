@@ -5,7 +5,10 @@ import json
 import sys
 
 from .adapters import DEFAULT_MODEL_ID, ModalAdapter, TransformersAdapter
+from pathlib import Path
+
 from .engine import RewriteEngine, RewriteRequest
+from .feedback import DEFAULT_FEEDBACK_PATH, append_feedback, build_feedback_record
 from .modes import MODES
 
 
@@ -21,6 +24,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--temperature", type=float, default=0.2)
     parser.add_argument("--max-attempts", type=int, default=2)
     parser.add_argument("--json", action="store_true", help="Print rewrite result with metadata as JSON")
+    parser.add_argument("--log-feedback", action="store_true", help="Append rewrite details to a feedback JSONL file")
+    parser.add_argument("--feedback-path", type=Path, default=DEFAULT_FEEDBACK_PATH)
+    parser.add_argument("--accepted", choices=["yes", "no"], help="Mark logged feedback as accepted or rejected")
+    parser.add_argument("--detector-score", type=float, help="Optional detector AI-likelihood score to log")
+    parser.add_argument("--preferred-rewrite", help="Optional better rewrite to log for future fine-tuning")
     return parser
 
 
@@ -41,18 +49,30 @@ def main(argv: list[str] | None = None) -> int:
 
     engine = RewriteEngine(make_adapter(args.backend, args.model, args.modal_app, args.modal_function))
     try:
-        result = engine.rewrite(
-            RewriteRequest(
-                text=args.text,
-                mode=args.mode,
-                max_new_tokens=args.max_new_tokens,
-                temperature=args.temperature,
-                max_attempts=args.max_attempts,
-            )
+        request = RewriteRequest(
+            text=args.text,
+            mode=args.mode,
+            max_new_tokens=args.max_new_tokens,
+            temperature=args.temperature,
+            max_attempts=args.max_attempts,
         )
+        result = engine.rewrite(request)
     except Exception as exc:
         print(f"humizz: {exc}", file=sys.stderr)
         return 1
+
+    if args.log_feedback:
+        accepted = None if args.accepted is None else args.accepted == "yes"
+        append_feedback(
+            build_feedback_record(
+                request,
+                result,
+                accepted=accepted,
+                detector_score=args.detector_score,
+                preferred_rewrite=args.preferred_rewrite,
+            ),
+            args.feedback_path,
+        )
 
     if args.json:
         print(json.dumps(result.to_dict(), indent=2))

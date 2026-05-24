@@ -18,6 +18,13 @@ models = [
 modal = [
   "modal",
 ]
+mlops = [
+  "datasets",
+  "peft",
+  "trl",
+  "accelerate",
+  "bitsandbytes",
+]
 
 [project.scripts]
 humizz = "humizz.cli:main"
