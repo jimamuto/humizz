@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 from typing import Protocol
 
@@ -22,8 +23,55 @@ class ModelAdapter(Protocol):
         """Generate text from a prompt."""
 
 
+DEFAULT_MODEL_ID = "Qwen/Qwen2.5-1.5B-Instruct"
+
+
+class ModalAdapter:
+    def __init__(
+        self,
+        model_id: str = DEFAULT_MODEL_ID,
+        app_name: str = "humizz",
+        function_name: str = "generate_text",
+    ) -> None:
+        self.model_id = model_id
+        self.app_name = app_name
+        self.function_name = function_name
+        self._function = None
+
+    def _load_function(self):
+        if self._function is None:
+            try:
+                import modal
+            except ImportError as exc:
+                raise RuntimeError(
+                    "Modal backend requires optional dependencies. "
+                    "Install with: pip install -e .[modal]"
+                ) from exc
+            self._function = modal.Function.from_name(self.app_name, self.function_name)
+        return self._function
+
+    def generate(self, request: GenerationRequest) -> GenerationResult:
+        function = self._load_function()
+        output = function.remote(
+            prompt=request.prompt,
+            model_id=self.model_id,
+            max_new_tokens=request.max_new_tokens,
+            temperature=request.temperature,
+        )
+        text = clean_generated_text(str(output["text"]))
+        return GenerationResult(
+            text=text,
+            metadata={
+                "adapter": "modal",
+                "app_name": self.app_name,
+                "function_name": self.function_name,
+                "model_id": output.get("model_id", self.model_id),
+            },
+        )
+
+
 class TransformersAdapter:
-    def __init__(self, model_id: str = "Qwen/Qwen2.5-0.5B-Instruct") -> None:
+    def __init__(self, model_id: str = DEFAULT_MODEL_ID) -> None:
         self.model_id = model_id
         self._pipeline = None
 
@@ -54,18 +102,26 @@ class TransformersAdapter:
 
 def clean_generated_text(text: str) -> str:
     cleaned = text.strip()
+    cleaned = re.sub(r"^Rewrite:\s*", "", cleaned, flags=re.IGNORECASE).strip()
     for marker in (
-        "\n\nThis sentence",
-        "\n\nThis rewrite",
-        "\n\nThis method",
-        "\n\nThe benefits",
-        "\n\nIn this rewrite",
-        "\n\nPlease note",
-        "\n\nExplanation:",
+        "\n\n",
+        "\n#",
+        "\n---",
+        "\n**",
+        "\nTranslation:",
+        "\n#Translation:",
+        "\nUpdated Translation:",
         "\nExplanation:",
-        "\n\nNote:",
         "\nNote:",
+        "\nPlease note",
+        "\nI apologize",
+        "\nFeel free",
+        "\nLet me know",
+        "\nI hope",
+        "\nCan you provide",
     ):
         if marker in cleaned:
             cleaned = cleaned.split(marker, 1)[0].strip()
+    cleaned = cleaned.strip('"`*_ ')
+    cleaned = re.sub(r"\s+", " ", cleaned).strip()
     return cleaned

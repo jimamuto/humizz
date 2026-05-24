@@ -11,8 +11,8 @@ from .quality import QualityReport, assess_quality
 class RewriteRequest:
     text: str
     mode: str = "natural"
-    max_new_tokens: int = 256
-    temperature: float = 0.7
+    max_new_tokens: int = 96
+    temperature: float = 0.35
 
 
 @dataclass(frozen=True)
@@ -59,13 +59,14 @@ class RewriteEngine:
 
 def build_prompt(instruction: str, text: str) -> str:
     return (
-        "You are Humizz, a rewrite tool.\n"
-        f"Task: {instruction}\n"
-        "Rules:\n"
-        "- Return only the rewritten text.\n"
-        "- Do not explain your changes.\n"
-        "- Do not add facts.\n"
-        "- Keep the original meaning.\n\n"
-        f"Original text:\n{text.strip()}\n\n"
-        "Rewritten text:"
+        "Rewrite the text between <original> tags.\n"
+        f"Goal: {instruction}\n"
+        "Hard rules:\n"
+        "- Output one rewrite only.\n"
+        "- Output no explanations, labels, notes, translations, markdown, bullets, or emoji.\n"
+        "- Preserve meaning, facts, names, and numbers.\n"
+        "- Do not add new claims.\n"
+        "- Keep similar length unless mode asks otherwise.\n\n"
+        f"<original>\n{text.strip()}\n</original>\n\n"
+        "Rewrite:"
     )

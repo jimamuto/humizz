@@ -15,6 +15,9 @@ models = [
   "torch",
   "transformers",
 ]
+modal = [
+  "modal",
+]
 
 [project.scripts]
 humizz = "humizz.cli:main"
