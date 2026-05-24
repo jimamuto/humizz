@@ -18,7 +18,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--modal-app", default="humizz")
     parser.add_argument("--modal-function", default="generate_text")
     parser.add_argument("--max-new-tokens", type=int, default=96)
-    parser.add_argument("--temperature", type=float, default=0.35)
+    parser.add_argument("--temperature", type=float, default=0.2)
+    parser.add_argument("--max-attempts", type=int, default=2)
     parser.add_argument("--json", action="store_true", help="Print rewrite result with metadata as JSON")
     return parser
 
@@ -46,6 +47,7 @@ def main(argv: list[str] | None = None) -> int:
                 mode=args.mode,
                 max_new_tokens=args.max_new_tokens,
                 temperature=args.temperature,
+                max_attempts=args.max_attempts,
             )
         )
     except Exception as exc:

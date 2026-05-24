@@ -12,7 +12,7 @@ class RewriteMode:
 MODES: dict[str, RewriteMode] = {
     "natural": RewriteMode(
         "natural",
-        "Rewrite the text so it sounds natural, clear, and human while preserving meaning.",
+        "Rewrite the text so it sounds natural and clear, using everyday wording and a human sentence rhythm while preserving meaning.",
     ),
     "concise": RewriteMode(
         "concise",
@@ -20,7 +20,7 @@ MODES: dict[str, RewriteMode] = {
     ),
     "formal": RewriteMode(
         "formal",
-        "Rewrite the text in a polished formal tone while preserving meaning.",
+        "Rewrite the text in a professional but plain-spoken tone while preserving meaning.",
     ),
     "casual": RewriteMode(
         "casual",

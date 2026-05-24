@@ -104,6 +104,8 @@ def clean_generated_text(text: str) -> str:
     cleaned = text.strip()
     cleaned = re.sub(r"^Rewrite:\s*", "", cleaned, flags=re.IGNORECASE).strip()
     for marker in (
+        "<original>",
+        "</original>",
         "\n\n",
         "\n#",
         "\n---",

@@ -16,6 +16,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--model", default=DEFAULT_MODEL_ID)
     parser.add_argument("--modal-app", default="humizz")
     parser.add_argument("--modal-function", default="generate_text")
+    parser.add_argument("--max-attempts", type=int, default=2)
     parser.add_argument("--output", type=Path)
     return parser
 
@@ -33,7 +34,7 @@ def main(argv: list[str] | None = None) -> int:
     results = []
 
     for mode in sorted(MODES):
-        result = engine.rewrite(RewriteRequest(text=source, mode=mode))
+        result = engine.rewrite(RewriteRequest(text=source, mode=mode, max_attempts=args.max_attempts))
         results.append(result.to_dict())
 
     payload = {"input": str(args.input), "backend": args.backend, "model": args.model, "results": results}

@@ -30,7 +30,7 @@ def generate_text(
     prompt: str,
     model_id: str = DEFAULT_MODEL_ID,
     max_new_tokens: int = 96,
-    temperature: float = 0.35,
+    temperature: float = 0.2,
 ) -> dict[str, object]:
     pipe = _load_pipeline(model_id)
     output = pipe(

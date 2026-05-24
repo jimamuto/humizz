@@ -86,9 +86,9 @@ Current generation defaults are tuned for concise rewrites:
 
 - Model: `Qwen/Qwen2.5-1.5B-Instruct`
 - `max_new_tokens`: `96`
-- `temperature`: `0.35`
+- `temperature`: `0.2`
 
-The engine prompt and output cleanup are intentionally strict to preserve meaning and avoid extra assistant chatter.
+The engine prompt and output cleanup are intentionally strict to preserve meaning and avoid extra assistant chatter. The default prompt also discourages formal AI-sounding transitions and asks for shorter, everyday sentences.
 
 ## Non-goals
 
