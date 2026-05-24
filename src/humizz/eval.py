@@ -4,7 +4,7 @@ import argparse
 import json
 from pathlib import Path
 
-from .adapters import FakeAdapter, TransformersAdapter
+from .adapters import TransformersAdapter
 from .engine import RewriteEngine, RewriteRequest
 from .modes import MODES
 
@@ -12,15 +12,13 @@ from .modes import MODES
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="humizz-eval", description="Run Humizz rewrite samples")
     parser.add_argument("input", type=Path, help="Text file to rewrite")
-    parser.add_argument("--backend", choices=["fake", "transformers"], default="fake")
+    parser.add_argument("--backend", choices=["transformers"], default="transformers")
     parser.add_argument("--model", default="Qwen/Qwen2.5-0.5B-Instruct")
     parser.add_argument("--output", type=Path)
     return parser
 
 
 def make_adapter(backend: str, model: str):
-    if backend == "fake":
-        return FakeAdapter()
     return TransformersAdapter(model_id=model)
 
 

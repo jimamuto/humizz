@@ -4,7 +4,7 @@ import argparse
 import json
 import sys
 
-from .adapters import FakeAdapter, TransformersAdapter
+from .adapters import TransformersAdapter
 from .engine import RewriteEngine, RewriteRequest
 from .modes import MODES
 
@@ -13,7 +13,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="humizz", description="Local-first text humanizer")
     parser.add_argument("text", help="Text to rewrite")
     parser.add_argument("--mode", choices=sorted(MODES), default="natural")
-    parser.add_argument("--backend", choices=["fake", "transformers"], default="fake")
+    parser.add_argument("--backend", choices=["transformers"], default="transformers")
     parser.add_argument("--model", default="Qwen/Qwen2.5-0.5B-Instruct")
     parser.add_argument("--max-new-tokens", type=int, default=256)
     parser.add_argument("--temperature", type=float, default=0.7)
@@ -22,8 +22,6 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def make_adapter(backend: str, model: str):
-    if backend == "fake":
-        return FakeAdapter()
     return TransformersAdapter(model_id=model)
 
 

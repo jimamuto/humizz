@@ -22,15 +22,6 @@ class ModelAdapter(Protocol):
         """Generate text from a prompt."""
 
 
-class FakeAdapter:
-    def generate(self, request: GenerationRequest) -> GenerationResult:
-        source = request.prompt.split("Original text:", 1)[-1].split("Rewritten text:", 1)[0].strip()
-        return GenerationResult(
-            text=f"Humanized: {source}",
-            metadata={"adapter": "fake"},
-        )
-
-
 class TransformersAdapter:
     def __init__(self, model_id: str = "Qwen/Qwen2.5-0.5B-Instruct") -> None:
         self.model_id = model_id

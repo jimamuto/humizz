@@ -10,7 +10,7 @@ Humizz is a local-first rewrite tool for turning stiff or robotic drafts into cl
 - Local model execution
 - Later local web UI
 - Rewrite modes: `natural`, `concise`, `formal`, `casual`
-- Default lightweight model target: `Qwen/Qwen2.5-0.5B-Instruct`
+- Default local model target: `Qwen/Qwen2.5-0.5B-Instruct`
 - Optional higher-quality target: `Qwen/Qwen2.5-1.5B-Instruct`
 
 ## Install
@@ -26,12 +26,6 @@ python -m pip install -e .[models]
 ```
 
 ## Run
-
-Fake backend, no model download:
-
-```powershell
-humizz "It is important to note that this solution provides significant utility." --mode natural
-```
 
 JSON output with quality metadata:
 
@@ -51,15 +45,9 @@ humizz "This solution provides significant utility." --backend transformers --mo
 python -m unittest discover -s tests
 ```
 
-Tests use the fake backend and do not download models.
+Tests use stub adapters and do not download models.
 
 ## Evaluate
-
-Run all modes against the sample essay with the fake backend:
-
-```powershell
-humizz-eval samples/ai_like_essay.txt --output outputs/eval-fake.json
-```
 
 Run all modes with a local Transformers model:
 

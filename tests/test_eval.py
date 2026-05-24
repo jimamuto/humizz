@@ -2,8 +2,15 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
+from humizz.adapters import GenerationRequest, GenerationResult
 from humizz.eval import main
+
+
+class StubAdapter:
+    def generate(self, request: GenerationRequest) -> GenerationResult:
+        return GenerationResult(text="This is a useful test.", metadata={"adapter": "stub"})
 
 
 class EvalTests(unittest.TestCase):
@@ -13,7 +20,8 @@ class EvalTests(unittest.TestCase):
             output_path = Path(tmp) / "out.json"
             input_path.write_text("This is a useful test.", encoding="utf-8")
 
-            code = main([str(input_path), "--output", str(output_path)])
+            with patch("humizz.eval.make_adapter", return_value=StubAdapter()):
+                code = main([str(input_path), "--output", str(output_path)])
 
             self.assertEqual(code, 0)
             payload = json.loads(output_path.read_text(encoding="utf-8"))
